@@ -33,5 +33,26 @@ class CreateTrack(graphene.Mutation):
         raise Exception('user is not authenticated')
 
 
+class UpdateTrack(graphene.Mutation):
+    track = graphene.Field(TrackType)
+
+    class Arguments:
+        track_id = graphene.Int(required=True)
+        title = graphene.String()
+        description = graphene.String()
+        url = graphene.String()
+
+    def mutate(self, info, track_id, **kwargs):
+        try:
+            track = Track.objects.get(id=track_id)
+            if info.context.user is track.posted_by:
+                track.update(**kwargs)
+                return UpdateTrack(track=track)
+            raise Exception('you are not authorized to update this post')
+        except Track.DoesNotExist:
+            raise Exception('this Track does not exists')
+
+
 class Mutation(graphene.ObjectType):
     create_track = CreateTrack.Field()
+    update_track = UpdateTrack.Field()
