@@ -26,8 +26,11 @@ class CreateTrack(graphene.Mutation):
         url = graphene.String()
 
     def mutate(self, info, title, description, url):
-        track = Track.objects.create(title=title, description=description, url=url)
-        return CreateTrack(track=track)
+        user = info.context.user
+        if user.is_authenticated:
+            track = Track.objects.create(title=title, description=description, url=url)
+            return CreateTrack(track=track)
+        raise Exception('user is not authenticated')
 
 
 class Mutation(graphene.ObjectType):
