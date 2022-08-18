@@ -1,12 +1,19 @@
 import graphene
+
 import tracks.schema
+import users.schema
 
 
-class Query(tracks.schema.Query):
+class Query(
+    users.schema.Query,
+    tracks.schema.Query,
+):
     pass
 
 
-class Mutation(tracks.schema.Mutation):
+class Mutation(users.schema.Mutation,
+               tracks.schema.Mutation,
+               ):
     pass
 
 
