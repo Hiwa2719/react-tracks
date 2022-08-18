@@ -13,9 +13,16 @@ class UserType(DjangoObjectType):
 
 class Query(graphene.ObjectType):
     user = graphene.Field(UserType, id=graphene.Int(required=True))
+    me = graphene.Field(UserType)
 
     def resolve_user(self, info, id):
         return User.objects.get(id=id)
+
+    def resolve_me(self, info):
+        user = info.context.user
+        if not user:
+            raise Exception('Not logged in')
+        return user
 
 
 class CreateUser(graphene.Mutation):
