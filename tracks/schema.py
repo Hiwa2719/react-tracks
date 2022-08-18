@@ -53,6 +53,24 @@ class UpdateTrack(graphene.Mutation):
             raise Exception('this Track does not exists')
 
 
+class DeleteTrack(graphene.Mutation):
+    track_id = graphene.Int()
+
+    class Arguments:
+        track_id = graphene.Int(required=True)
+
+    def mutate(self, info, track_id):
+        try:
+            track = Track.objects.get(id=track_id)
+            if info.context.user is track.posted_by:
+                track.delete()
+                return UpdateTrack(track_id=track_id)
+            raise Exception('you are not authorized to delete this post')
+        except Track.DoesNotExist:
+            raise Exception('this Track does not exists')
+
+
 class Mutation(graphene.ObjectType):
     create_track = CreateTrack.Field()
     update_track = UpdateTrack.Field()
+    delete_track = DeleteTrack.Field()
