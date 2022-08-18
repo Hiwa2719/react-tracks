@@ -2,7 +2,6 @@ import graphene
 from graphene_django import DjangoObjectType
 
 from .models import Track, Like
-from users.schema import UserType
 
 
 class TrackType(DjangoObjectType):
@@ -11,11 +10,21 @@ class TrackType(DjangoObjectType):
         fields = '__all__'
 
 
+class LikeType(DjangoObjectType):
+    class Meta:
+        model = Like
+        fields = '__all__'
+
+
 class Query(graphene.ObjectType):
     tracks = graphene.List(TrackType)
+    likes = graphene.List(LikeType)
 
     def resolve_tracks(self, info):
         return Track.objects.all()
+
+    def resolve_likes(self, info):
+        return Like.objects.all()
 
 
 class CreateTrack(graphene.Mutation):
@@ -72,11 +81,9 @@ class DeleteTrack(graphene.Mutation):
 
 
 class CreateLike(graphene.Mutation):
-    user = graphene.Field(UserType)
-    track = graphene.Field(TrackType)
+    like = graphene.Field(LikeType)
 
     class Arguments:
-        # user_id = graphene.Int(required=True)
         track_id = graphene.Int(required=True)
 
     def mutate(self, info, track_id):
@@ -85,7 +92,7 @@ class CreateLike(graphene.Mutation):
             user = info.context.user
             if user.is_authenticated:
                 like = Like.objects.create(user=user, track=track)
-                return CreateLike(user=user, track=track)
+                return CreateLike(like=like)
             raise Exception('you are not Authenticated')
         except Track.DoesNotExist:
             raise Exception('this Track does not exists')

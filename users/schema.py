@@ -20,9 +20,9 @@ class Query(graphene.ObjectType):
 
     def resolve_me(self, info):
         user = info.context.user
-        if not user:
-            raise Exception('Not logged in')
-        return user
+        if user.is_authenticated:
+            return user
+        raise Exception('Not logged in')
 
 
 class CreateUser(graphene.Mutation):
