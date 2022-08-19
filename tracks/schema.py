@@ -62,14 +62,13 @@ class UpdateTrack(graphene.Mutation):
         url = graphene.String()
 
     def mutate(self, info, track_id, **kwargs):
-        try:
-            track = Track.objects.get(id=track_id)
-            if info.context.user is track.posted_by:
+        track = Track.objects.filter(id=track_id)
+        if track:
+            if info.context.user == track.first().posted_by:
                 track.update(**kwargs)
-                return UpdateTrack(track=track)
+                return UpdateTrack(track=track.first())
             raise GraphQLError('you are not authorized to update this post')
-        except Track.DoesNotExist:
-            raise GraphQLError('this Track does not exists')
+        raise GraphQLError('this Track does not exists')
 
 
 class DeleteTrack(graphene.Mutation):
