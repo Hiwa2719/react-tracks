@@ -1,6 +1,6 @@
 import graphene
 from graphene_django import DjangoObjectType
-
+from graphql import GraphQLError
 from .models import Track, Like
 
 
@@ -40,7 +40,7 @@ class CreateTrack(graphene.Mutation):
         if user.is_authenticated:
             track = Track.objects.create(title=title, description=description, url=url)
             return CreateTrack(track=track)
-        raise Exception('user is not authenticated')
+        raise GraphQLError('user is not authenticated')
 
 
 class UpdateTrack(graphene.Mutation):
@@ -58,9 +58,9 @@ class UpdateTrack(graphene.Mutation):
             if info.context.user is track.posted_by:
                 track.update(**kwargs)
                 return UpdateTrack(track=track)
-            raise Exception('you are not authorized to update this post')
+            raise GraphQLError('you are not authorized to update this post')
         except Track.DoesNotExist:
-            raise Exception('this Track does not exists')
+            raise GraphQLError('this Track does not exists')
 
 
 class DeleteTrack(graphene.Mutation):
@@ -75,9 +75,9 @@ class DeleteTrack(graphene.Mutation):
             if info.context.user is track.posted_by:
                 track.delete()
                 return UpdateTrack(track_id=track_id)
-            raise Exception('you are not authorized to delete this post')
+            raise GraphQLError('you are not authorized to delete this post')
         except Track.DoesNotExist:
-            raise Exception('this Track does not exists')
+            raise GraphQLError('this Track does not exists')
 
 
 class CreateLike(graphene.Mutation):
@@ -93,9 +93,9 @@ class CreateLike(graphene.Mutation):
             if user.is_authenticated:
                 like = Like.objects.create(user=user, track=track)
                 return CreateLike(like=like)
-            raise Exception('you are not Authenticated')
+            raise GraphQLError('you are not Authenticated')
         except Track.DoesNotExist:
-            raise Exception('this Track does not exists')
+            raise GraphQLError('this Track does not exists')
 
 
 class Mutation(graphene.ObjectType):
