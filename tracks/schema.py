@@ -40,14 +40,17 @@ class CreateTrack(graphene.Mutation):
     track = graphene.Field(TrackType)
 
     class Arguments:
-        title = graphene.String()
-        description = graphene.String()
-        url = graphene.String()
+        title = graphene.String(required=True)
+        description = graphene.String(required=True)
+        url = graphene.String(required=True)
 
     def mutate(self, info, title, description, url):
         user = info.context.user
         if user.is_authenticated:
-            track = Track.objects.create(title=title, description=description, url=url)
+            track = Track.objects.create(title=title,
+                                         description=description,
+                                         url=url,
+                                         posted_by=user)
             return CreateTrack(track=track)
         raise GraphQLError('user is not authenticated')
 
