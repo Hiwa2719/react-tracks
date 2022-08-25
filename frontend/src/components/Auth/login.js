@@ -11,12 +11,13 @@ const LOGIN_QUERY = gql`
     }
 `
 
-const Login = ({setLoginScreen}) => {
+const Login = ({setLoginScreen, setLoggedIn}) => {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
-    const [getToken, token] = useMutation(LOGIN_QUERY, {
+    const [getToken] = useMutation(LOGIN_QUERY, {
         onCompleted: (data)=> {
             localStorage.setItem('authToken', data.tokenAuth.token)
+            setLoggedIn(data.tokenAuth.token)
         }
     })
 
@@ -28,8 +29,6 @@ const Login = ({setLoginScreen}) => {
                 password: password
             }
         })
-        console.log(getToken)
-        console.log(token)
     }
     return (
         <form onSubmit={submitHandler}>
